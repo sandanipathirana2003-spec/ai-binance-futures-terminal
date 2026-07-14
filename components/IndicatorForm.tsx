@@ -6,36 +6,20 @@ import type { IndicatorInputs, SupertrendDirection } from "@/lib/types";
 interface Props {
   onAnalyze: (inputs: IndicatorInputs) => void;
   isLoading: boolean;
+  isLocked: boolean;
+  defaultSymbol?: string;
 }
 
 const ST_OPTIONS: SupertrendDirection[] = ["BULLISH", "BEARISH", "NEUTRAL"];
 
-function Badge({
-  value,
-  trueLabel,
-  falseLabel,
-  trueColor,
-  falseColor,
-}: {
-  value: boolean;
-  trueLabel: string;
-  falseLabel: string;
-  trueColor: string;
-  falseColor: string;
-}) {
-  return (
-    <span
-      className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold ${
-        value ? trueColor : falseColor
-      }`}
-    >
-      {value ? trueLabel : falseLabel}
-    </span>
-  );
-}
+const POPULAR_COINS = [
+  "BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT",
+  "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT",
+  "LINKUSDT", "DOTUSDT", "MATICUSDT", "LTCUSDT",
+];
 
-export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
-  const [symbol, setSymbol] = useState("BTCUSDT");
+export default function IndicatorForm({ onAnalyze, isLoading, isLocked, defaultSymbol = "BTCUSDT" }: Props) {
+  const [symbol, setSymbol] = useState(defaultSymbol);
   const [currentPrice, setCurrentPrice] = useState("");
   const [supportLevel, setSupportLevel] = useState("");
   const [resistanceLevel, setResistanceLevel] = useState("");
@@ -92,15 +76,31 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Symbol + Price */}
+      {/* Symbol quick-select */}
       <section>
-        <SectionTitle>Market</SectionTitle>
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          <Field label="Symbol">
+        <SectionTitle>Select Coin</SectionTitle>
+        <div className="flex flex-wrap gap-1.5 mt-2 mb-3">
+          {POPULAR_COINS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setSymbol(c)}
+              className={`text-xs px-2 py-1 rounded border font-mono transition-colors ${
+                symbol === c
+                  ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                  : "border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:border-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+              }`}
+            >
+              {c.replace("USDT", "")}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Symbol (custom)">
             <input
               className={inputClass}
               value={symbol}
-              onChange={(e) => setSymbol(e.target.value)}
+              onChange={(e) => setSymbol(e.target.value.toUpperCase())}
               placeholder="BTCUSDT"
               required
             />
@@ -116,7 +116,7 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
               required
             />
           </Field>
-          <Field label="Support Level (optional)">
+          <Field label="Support (optional)">
             <input
               className={inputClass}
               type="number"
@@ -126,7 +126,7 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
               placeholder="64200"
             />
           </Field>
-          <Field label="Resistance Level (optional)">
+          <Field label="Resistance (optional)">
             <input
               className={inputClass}
               type="number"
@@ -175,8 +175,8 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
             <ToggleButton
               value={tf15m_vol}
               onChange={setTf15m_vol}
-              trueLabel="Above Average"
-              falseLabel="Below Average"
+              trueLabel="Above Avg"
+              falseLabel="Below Avg"
             />
           </Field>
         </div>
@@ -218,8 +218,8 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
             <ToggleButton
               value={tf1h_vol}
               onChange={setTf1h_vol}
-              trueLabel="Above Average"
-              falseLabel="Below Average"
+              trueLabel="Above Avg"
+              falseLabel="Below Avg"
             />
           </Field>
         </div>
@@ -227,7 +227,7 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
 
       {/* Active Trade */}
       <section>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <SectionTitle>Active Trade</SectionTitle>
           <button
             type="button"
@@ -243,7 +243,7 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
         </div>
 
         {hasActiveTrade && (
-          <div className="grid grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Direction">
               <div className="flex gap-2">
                 {(["LONG", "SHORT"] as const).map((d) => (
@@ -322,16 +322,22 @@ export default function IndicatorForm({ onAnalyze, isLoading }: Props) {
       {/* Submit */}
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isLocked}
         className="mt-1 w-full py-3 rounded font-semibold text-sm tracking-wide transition-colors bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {isLoading ? "Analyzing..." : "Generate Signal"}
+        {isLoading ? "Analyzing..." : isLocked ? "Signal Locked — Unlock to Re-analyze" : "Generate Signal"}
       </button>
+
+      {isLocked && (
+        <p className="text-xs text-center text-[var(--color-muted-foreground)] -mt-3 leading-relaxed">
+          Signal is <span className="text-[var(--color-buy)] font-semibold">LIVE &amp; LOCKED</span>. Close your trade or hit SL, then unlock to get a new signal.
+        </p>
+      )}
     </form>
   );
 }
 
-/* ── Small helpers ────────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────── */
 
 const inputClass =
   "w-full bg-[var(--color-muted)] border border-[var(--color-border)] rounded px-3 py-2 text-sm font-mono text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-primary)] transition-colors";

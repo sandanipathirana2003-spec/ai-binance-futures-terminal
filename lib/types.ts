@@ -1,4 +1,3 @@
-export type Timeframe = "1m" | "3m" | "5m" | "15m" | "1h" | "4h" | "1d";
 export type SignalDirection = "BUY" | "SELL" | "NO TRADE";
 export type SupertrendDirection = "BULLISH" | "BEARISH" | "NEUTRAL";
 
@@ -7,7 +6,7 @@ export interface IndicatorInputs {
 
   // 15m timeframe
   tf15m_supertrend: SupertrendDirection;
-  tf15m_ema200_price_above: boolean; // price above EMA200?
+  tf15m_ema200_price_above: boolean;
   tf15m_adx: number;
   tf15m_volume_above_avg: boolean;
 
@@ -22,7 +21,7 @@ export interface IndicatorInputs {
   support_level?: number;
   resistance_level?: number;
 
-  // Active trade (optional — if user is already in a trade)
+  // Active trade (optional)
   active_trade?: {
     direction: "LONG" | "SHORT";
     entry_price: number;
@@ -35,7 +34,7 @@ export interface IndicatorInputs {
 
 export interface TradeSignal {
   direction: SignalDirection;
-  confidence: number; // 0–100
+  confidence: number;
   entry: number | null;
   stop_loss: number | null;
   take_profit_1: number | null;
@@ -44,4 +43,20 @@ export interface TradeSignal {
   reason: string;
   active_trade_advice?: string | null;
   timestamp: string;
+}
+
+/**
+ * A "coin slot" holds one coin's form state + its locked signal.
+ * Once a signal is locked, it CANNOT be overwritten by re-analysis
+ * unless the user explicitly unlocks it (trade closed / SL hit).
+ */
+export interface CoinSlot {
+  id: string;            // unique tab id
+  symbol: string;
+  inputs: IndicatorInputs | null;
+  signal: TradeSignal | null;
+  /** LOCKED = signal is live, do not change. DRAFT = new analysis ready but not locked. */
+  locked: boolean;
+  loading: boolean;
+  error: string | null;
 }
