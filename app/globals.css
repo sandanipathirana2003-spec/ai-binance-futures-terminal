@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: "Inter", "Inter Fallback", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+
+  /* Core palette — 5 colors total */
+  --color-background: #0a0b0e;
+  --color-surface: #111318;
+  --color-border: #1e2230;
+  --color-muted: #2a2f3e;
+
+  --color-foreground: #e2e8f0;
+  --color-muted-foreground: #64748b;
+
+  --color-primary: #f0b429;       /* amber — buy signals */
+  --color-primary-foreground: #0a0b0e;
+
+  --color-buy: #00c896;           /* green — bullish */
+  --color-sell: #f04438;          /* red — bearish */
+  --color-neutral: #64748b;       /* gray — no trade */
+
+  --color-card: #111318;
+  --color-card-foreground: #e2e8f0;
+
+  --radius: 0.375rem;
+}
+
+* {
+  box-sizing: border-box;
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 2px;
+}
