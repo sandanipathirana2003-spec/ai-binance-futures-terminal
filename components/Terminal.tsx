@@ -59,7 +59,7 @@ export default function Terminal() {
       </header>
 
       {/* Body */}
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[380px_1fr] gap-6">
         {/* Left — Input */}
         <aside className="flex flex-col gap-4">
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
